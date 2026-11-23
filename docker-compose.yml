@@ -1,0 +1,59 @@
+# Compose mode for macOS (and Windows via WSL2). AWS Emulator has no prebuilt
+# image, so it is built from the official Dockerfile in docker/aws-emulator.
+#
+# NOT VERIFIED IN CI: the repo was built and tested on Linux with native
+# binaries (no Docker daemon available). Treat this file as a starting point.
+#
+#   SPLIT_BRAIN_MODE=compose make up deploy verify
+#
+# Two design decisions you should know about:
+#
+# 1. MiniStack joins AWS Emulator's network namespace (network_mode below).
+#    The emulator's TLS certificate is only valid for localhost / 127.0.0.1.
+#    A Lambda running inside the MiniStack container must reach the emulator
+#    under one of those names, which only works if both share 127.0.0.1.
+#    Calling https://aws-emulator:9297 fails certificate hostname checks.
+#
+# 2. ~/.aws/emulator is mounted at the SAME absolute path in both containers
+#    (HOME is passed through, as the official docs recommend). The rendered
+#    routing puts that host path into the Lambda's AWS_CA_BUNDLE, so it has
+#    to resolve inside the MiniStack container too.
+#
+# Before the first run:  mkdir -p ~/.aws/emulator
+
+services:
+  aws-emulator:
+    build:
+      context: ./docker/aws-emulator
+      args:
+        EMULATOR_ARCH: ${EMULATOR_ARCH:-x86_64} # aarch64 on Apple silicon
+    image: split-brain/aws-emulator:local
+    command: ["-p", "9297", "--auth", "off", "--telemetry", "off"]
+    environment:
+      HOME: ${HOME}
+      EMULATOR_TELEMETRY: "off"
+    volumes:
+      - ${HOME}/.aws/emulator:${HOME}/.aws/emulator
+    ports:
+      # Published on loopback only. MiniStack's port is published here too
+      # because it lives in this container's network namespace.
+      - "127.0.0.1:9297:9297"
+      - "127.0.0.1:4566:4566"
+    mem_limit: 2g
+    memswap_limit: 2g
+
+  ministack:
+    image: ministackorg/ministack:1.5.44
+    network_mode: "service:aws-emulator"
+    depends_on:
+      - aws-emulator
+    environment:
+      GATEWAY_PORT: "4566"
+      MINISTACK_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      LAMBDA_EXECUTOR: local
+      IOT_MTLS_ENABLED: "0"
+      SFTP_ENABLED: "0"
+    volumes:
+      - ${HOME}/.aws/emulator:${HOME}/.aws/emulator:ro

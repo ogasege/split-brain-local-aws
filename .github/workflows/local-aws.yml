@@ -1,0 +1,81 @@
+# Integration tests against MiniStack + AWS Emulator on every push and PR.
+# No AWS account, no credentials, no cost.
+name: local-aws
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: local-aws-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  MINISTACK_VERSION: "1.5.44"
+  TERRAFORM_VERSION: "1.17.2"
+  # The emulator package URL is LTS/latest (no pinned URL is published).
+  # The job logs the installed version and warns when it differs.
+  EXPECTED_EMULATOR_VERSION: "1.0.589"
+  EMULATOR_TELEMETRY: "off"
+
+jobs:
+  split-stack:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false # keep `terraform output -raw` clean for scripts
+
+      - name: Install AWS Emulator (.deb)
+        run: |
+          curl -fsSLo /tmp/aws-emulator.deb \
+            https://downloads.aws.com/aws-emulator/packages/aws-emulator/LTS/latest/aws-emulator_amd64.deb
+          sudo apt-get install -y /tmp/aws-emulator.deb
+          installed="$(aws-emulator --version | awk '/^Version/ {print $2}')"
+          echo "aws-emulator $installed"
+          if [[ "$installed" != "$EXPECTED_EMULATOR_VERSION" ]]; then
+            echo "::warning::aws-emulator $installed differs from tested $EXPECTED_EMULATOR_VERSION"
+          fi
+
+      - name: Install MiniStack and test deps
+        run: pip install "ministack==${MINISTACK_VERSION}" boto3 pytest
+
+      - name: AWS CLI must be v2
+        run: aws --version
+
+      - name: Unit tests
+        run: make unit
+
+      - name: Start both emulators
+        run: make up
+
+      - name: Deploy with Terraform (one provider, two emulators)
+        run: make deploy
+
+      - name: End-to-end verify
+        run: make verify
+
+      - name: Integration tests
+        run: make integration
+
+      - name: Destroy and stop
+        if: always()
+        run: |
+          make destroy || true
+          make down
+
+      - name: Emulator logs on failure
+        if: failure()
+        run: tail -n 200 .local/logs/*.log || true
