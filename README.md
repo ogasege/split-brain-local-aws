@@ -2,6 +2,8 @@
 
 [![local-aws](https://github.com/ogasege/split-brain-local-aws/actions/workflows/local-aws.yml/badge.svg)](https://github.com/ogasege/split-brain-local-aws/actions/workflows/local-aws.yml)
 
+**Article:** [One Local AWS, Two Emulators: Routing Services Between AWS Emulator and MiniStack](https://builder.aws.com/content/3MWWzSRyKiPDDBmIwuhihQz2Vv7/one-local-aws-two-emulators-routing-services-between-aws-emulator-and-ministack) on AWS Builder Center.
+
 Run **MiniStack** and **AWS Emulator** side by side as one local AWS, and send
 each AWS service to the emulator that is strongest for it. One routing file
 drives the AWS CLI, the SDKs, Terraform and the Lambda runtime, so they can
