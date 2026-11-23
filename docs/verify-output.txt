@@ -1,0 +1,23 @@
+$ make verify
+[split-brain] run id r179546641321065: 16 readings, 3 meters, 2 sites
+[split-brain] placement
+[ ok ] PASS  bucket split-brain-meter-uploads lives in MiniStack
+[ ok ] PASS  bucket is NOT in AWS Emulator
+[ ok ] PASS  table split-brain-meter-intervals lives in AWS Emulator
+[ ok ] PASS  table is NOT in MiniStack
+[ ok ] PASS  function split-brain-ingest carries the routing env from routing.toml
+[split-brain] upload s3://split-brain-meter-uploads/incoming/r179546641321065/readings.csv
+[ ok ] PASS  13 interval rows written to DynamoDB (AWS Emulator) within 45s
+[ ok ] PASS  3 alerts on the SQS queue (MiniStack)
+[ ok ] PASS  alert types are GAP, RESET, SPIKE
+[ ok ] PASS  one alert digest email sent via SES (MiniStack)
+[ ok ] PASS  counter rollover 99985.25 -> 2.75 stored as 17.49 kWh, quality ROLLOVER
+[ ok ] PASS  meter reset stored with no kWh, quality RESET
+[split-brain] replay: upload the same readings under a new key
+[ ok ] PASS  replay processed: Lambda log shows 13 duplicates
+[ ok ] PASS  still 13 rows after replay (conditional writes rejected duplicates)
+[ ok ] PASS  still 3 alerts after replay (no duplicate alerts)
+[ ok ] PASS  still one digest email after replay
+[ ok ] PASS  malformed CSV produces one BAD_FILE alert
+
+[ ok ] VERIFY PASS (16 checks, run r179546641321065)
