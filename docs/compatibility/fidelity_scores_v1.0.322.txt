@@ -1,0 +1,27 @@
+Source: https://github.com/aws/aws-emulator/releases/download/v1.0.322/scores.json.gz  commit=7753983c6e495ec3612695b1336bf4936fc7b7fd scoredAt=2026-11-11T00:09:58.257602+00:00
+Counting units whose 'services' list contains the service. 'solo' = units touching only that service. skipped units excluded from denominator.
+service                all pass/total      %    solo pass/total      %  behavioral/wire split (pass/total)
+S3                      1763/2798        63%       965/1220        79%  beh 1561/2502  wire 202/296
+DynamoDB                1153/1686        68%       807/1044        77%  beh 1002/1443  wire 151/243
+DynamoDB Streams          26/40          65%        16/25          64%  beh 24/29  wire 2/11
+SQS                     1032/1514        68%       299/333         90%  beh 1019/1485  wire 13/29
+SNS                      440/635         69%       210/284         74%  beh 413/596  wire 27/39
+Lambda                  1561/2983        52%       365/787         46%  beh 1489/2812  wire 72/171
+EventBridge              690/964         72%       232/279         83%  beh 627/889  wire 63/75
+Scheduler                 96/188         51%        75/137         55%  beh 92/171  wire 4/17
+Step Functions           687/978         70%       432/589         73%  beh 635/910  wire 52/68
+KMS                      360/501         72%       291/310         94%  beh 302/432  wire 58/69
+Secrets Manager          300/440         68%       173/219         79%  beh 280/414  wire 20/26
+SSM                      178/741         24%        92/452         20%  beh 158/566  wire 20/175
+STS                      121/246         49%        94/169         56%  beh 110/224  wire 11/22
+IAM                      709/1221        58%       488/691         71%  beh 580/993  wire 129/228
+SES                      106/153         69%       106/141         75%  beh 95/132  wire 11/21
+SESv2                    141/254         56%       105/164         64%  beh 128/210  wire 13/44
+Athena                    92/457         20%        50/343         15%  beh 92/420  wire 0/37
+Bedrock (control)        155/235         66%       128/166         77%  beh 143/204  wire 12/31
+Bedrock Runtime           77/182         42%        49/114         43%  beh 57/153  wire 20/29
+CloudWatch Logs          701/1204        58%       466/642         73%  beh 591/1019  wire 110/185
+Kinesis                  235/405         58%       151/249         61%  beh 224/380  wire 11/25
+API Gateway v1           762/1209        63%       579/780         74%  beh 616/1009  wire 146/200
+API Gateway v2           195/399         49%       156/277         56%  beh 166/292  wire 29/107
+ALL units 24243 / 42857

@@ -1,0 +1,52 @@
+{
+ "meta": {
+  "run": "5e14e4",
+  "when": "2026-11-23T20:29:20Z",
+  "versions": {
+   "aws-emulator": "1.0.589",
+   "ministack": "1.5.44"
+  },
+  "boto3": "1.43.124"
+ },
+ "ms": {
+  "athena.select_1": {
+   "status": "PASS",
+   "evidence": {
+    "state": "SUCCEEDED",
+    "reason": "",
+    "rows": [
+     [
+      "one",
+      "s"
+     ],
+     [
+      "1",
+      "x"
+     ]
+    ]
+   },
+   "seconds": 0.74
+  },
+  "athena.query_s3_csv": {
+   "status": "PASS",
+   "evidence": {
+    "rows": [
+     [
+      "device",
+      "total"
+     ],
+     [
+      "dev-1",
+      "30"
+     ],
+     [
+      "dev-2",
+      "5"
+     ]
+    ],
+    "implicit_default_db": "CREATE EXTERNAL TABLE m50_5e14e4_d (a string) LOCATION 's3:/ -> {'State': 'FAILED', 'StateChangeReason': \"Schema 'default' does not exist\", 'SubmissionDateTime'"
+   },
+   "seconds": 0.6
+  }
+ }
+}

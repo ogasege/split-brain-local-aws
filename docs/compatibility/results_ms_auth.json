@@ -1,0 +1,480 @@
+{
+ "meta": {
+  "run": "679c1c",
+  "when": "2026-11-23T20:29:49Z",
+  "versions": {
+   "aws-emulator": "1.0.589",
+   "ministack": "1.5.44"
+  },
+  "boto3": "1.43.124"
+ },
+ "ms": {
+  "s3.basic_put_get": {
+   "status": "PASS",
+   "evidence": {
+    "etag": "\"5d41402abc4b2a76b9719d911017c592\"",
+    "ctype": "text/plain",
+    "missing_key_error": {
+     "http": 404,
+     "code": "NoSuchKey",
+     "message": "The specified key does not exist."
+    }
+   },
+   "seconds": 0.2
+  },
+  "s3.presigned_url": {
+   "status": "PASS",
+   "evidence": {
+    "url_host": "127.0.0.1:4601",
+    "tampered_status": 403,
+    "tampered_body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Error><Code>SignatureDoesNotMatch</Code><Message>The request signature we calculated does not match the signature you provided. Check your key and signing metho",
+    "expired_status": 403,
+    "expired_body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Error><Code>AccessDenied</Code><Message>Request has expired</Message><X-Amz-Expires>1</X-Amz-Expires><Expires>2026-11-23T20:29:51Z</Expires><ServerTime>2026-11-"
+   },
+   "seconds": 2.24
+  },
+  "s3.notify_sqs": {
+   "status": "PASS",
+   "evidence": {
+    "messages": 2,
+    "s3_TestEvent_seen": true,
+    "config_without_queue_policy": {
+     "http": 400,
+     "code": "InvalidArgument",
+     "message": "Unable to validate the following destination configurations: arn:aws:sqs:us-east-1:000000000000:m50-q-679c1c-5f7d"
+    },
+    "event_names": [
+     "ObjectCreated:Put"
+    ],
+    "key": [
+     "up/file.txt"
+    ]
+   },
+   "seconds": 0.05
+  },
+  "sns.sqs_filter_policy": {
+   "status": "PASS",
+   "evidence": {
+    "delivered_without_queue_policy": 0,
+    "filtered_queue": [
+     "m-red"
+    ],
+    "unfiltered_queue_count": 2,
+    "unfiltered_envelope_type": "Notification"
+   },
+   "seconds": 9.12
+  },
+  "lambda.iam_enforced_inside_function": {
+   "status": "PASS",
+   "evidence": {
+    "error": "AccessDenied('An error occurred (AccessDenied) when calling the ListBuckets operation: User: arn:aws:sts::000000000000:assumed-role/m50-bare-679c1c-f579/m50-iam-679c1c-5891 is not authorized to perform: s3:ListAllMyBuckets because no identity-based policy allows the s3:ListAllMyBuckets action')"
+   },
+   "seconds": 0.81
+  },
+  "s3.presigned_sigv2_default": {
+   "status": "PASS",
+   "evidence": {
+    "query_style": "SigV2 (AWSAccessKeyId=)",
+    "status": 200,
+    "body": "v2"
+   },
+   "seconds": 0.02
+  },
+  "sts.caller_identity": {
+   "status": "PASS",
+   "evidence": {
+    "Account": "000000000000",
+    "Arn": "arn:aws:iam::000000000000:root",
+    "UserId": "000000000000"
+   },
+   "seconds": 0.04
+  },
+  "iam.deny_policy_enforced": {
+   "status": "PASS",
+   "evidence": {
+    "assumed_key_prefix": "ASIA227A",
+    "list_buckets_with_deny_all": {
+     "http": 403,
+     "code": "AccessDenied",
+     "message": "User: arn:aws:sts::000000000000:assumed-role/m50-deny-679c1c-ef19/m50 is not authorized to perform: s3:ListAllMyBuckets with an explicit deny in an identity-based policy"
+    },
+    "simulate_principal_policy": [
+     "explicitDeny"
+    ]
+   },
+   "seconds": 0.09
+  },
+  "s3.multipart": {
+   "status": "WRONG_SEMANTICS",
+   "error": "accepted 1 KiB non-final part (AWS: EntityTooSmall) | {'etag': '\"30dcfd3901d1c613b7fb532281748544-2\"', 'size': 5242884, 'small_part_behaviour': 'accepted 1 KiB non-final part (AWS: EntityTooSmall)'}",
+   "seconds": 0.06
+  },
+  "s3.versioning": {
+   "status": "PASS",
+   "evidence": {
+    "versions": 2,
+    "delete_markers": 1,
+    "delete_marker_flag": true,
+    "status": "Enabled",
+    "get_after_delete": {
+     "http": 404,
+     "code": "NoSuchKey",
+     "message": "The specified key does not exist."
+    }
+   },
+   "seconds": 0.03
+  },
+  "s3.notify_lambda": {
+   "status": "PASS",
+   "evidence": {
+    "fired": {
+     "via": "signal_queue (boto3 inside the function)",
+     "count": 1,
+     "event_sample": "{\"fn\": \"m50-s3fn-679c1c-2820\", \"event\": {\"Records\": [{\"eventVersion\": \"2.6\", \"eventSource\": \"aws:s3\", \"awsRegion\": \"us-east-1\", \"eventTime\": \"2026-11-23T20:29:5"
+    },
+    "config_without_permission": "ACCEPTED without lambda:AddPermission (AWS: InvalidArgument Unable to validate destination)"
+   },
+   "seconds": 0.95
+  },
+  "ddb.conditional_put_fails": {
+   "status": "PASS",
+   "evidence": {
+    "http": 400,
+    "code": "ConditionalCheckFailedException",
+    "message": "The conditional request failed",
+    "ALL_OLD_item_returned": true
+   },
+   "seconds": 0.05
+  },
+  "ddb.transact_cancel_reasons": {
+   "status": "PASS",
+   "evidence": {
+    "http": 400,
+    "code": "TransactionCanceledException",
+    "message": "Transaction cancelled, please refer cancellation reasons for specific reasons [None, ConditionalCheckFailed]",
+    "CancellationReasons": [
+     {
+      "Code": "None"
+     },
+     {
+      "Code": "ConditionalCheckFailed",
+      "Message": "The conditional request failed"
+     }
+    ],
+    "first_put_rolled_back": true
+   },
+   "seconds": 0.01
+  },
+  "ddb.gsi_query": {
+   "status": "PASS",
+   "evidence": {
+    "count": 2,
+    "consistent_read_on_gsi": {
+     "http": 400,
+     "code": "ValidationException",
+     "message": "Consistent reads are not supported on global secondary indexes"
+    }
+   },
+   "seconds": 0.02
+  },
+  "ddb.streams": {
+   "status": "PASS",
+   "evidence": {
+    "records": 2,
+    "events": [
+     "INSERT",
+     "MODIFY"
+    ],
+    "has_old_image_on_modify": true
+   },
+   "seconds": 0.04
+  },
+  "ddb.ttl": {
+   "status": "PASS",
+   "evidence": {
+    "describe": {
+     "TimeToLiveStatus": "ENABLED",
+     "AttributeName": "exp"
+    },
+    "expired_item_still_readable_after_3s": true,
+    "note": "AWS deletes expired items lazily (up to days), so 'still readable' is AWS-consistent"
+   },
+   "seconds": 3.02
+  },
+  "ddb.pagination": {
+   "status": "PASS",
+   "evidence": {
+    "pages": 3,
+    "total": 25
+   },
+   "seconds": 0.06
+  },
+  "ddb.error_texts": {
+   "status": "WRONG_SEMANTICS",
+   "error": "accepted invalid input: ['bad_expression'] | {'missing_table': {'http': 400, 'code': 'ResourceNotFoundException', 'message': 'Requested resource not found'}, 'bad_key_type': {'http': 400, 'code': 'ValidationException', 'message': 'The provided key element does not match the schema'}, 'missing_sk': {'http': 400, 'code': 'ValidationException', 'message': 'One or more parameter values were invalid: Missing the key sk in the item'}, 'bad_expression': 'NO ERROR', 'undefined_placeholder': {'http': 400, 'code': 'ValidationException', 'message': 'Invalid KeyConditionExpression: An expression attribute value used in expression is not defined; attribute value: :nope'}}",
+   "seconds": 0.01
+  },
+  "sqs.standard": {
+   "status": "PASS",
+   "evidence": {
+    "md5_body": "49f68a5c8493ec2c0bf489821c21fc3b",
+    "attrs": [
+     "SenderId",
+     "SentTimestamp",
+     "ApproximateReceiveCount",
+     "ApproximateFirstReceiveTimestamp"
+    ]
+   },
+   "seconds": 0.01
+  },
+  "sqs.fifo_dedup": {
+   "status": "PASS",
+   "evidence": {
+    "bodies": [
+     "dup",
+     "second"
+    ],
+    "no_dedup_id_error": {
+     "http": 400,
+     "code": "InvalidParameterValue",
+     "message": "The queue should either have ContentBasedDeduplication enabled or MessageDeduplicationId provided explicitly."
+    }
+   },
+   "seconds": 4.03
+  },
+  "sqs.dlq_redrive": {
+   "status": "PASS",
+   "evidence": {
+    "receives_from_source": 2,
+    "in_dlq": 1,
+    "start_message_move_task": "ok"
+   },
+   "seconds": 11.25
+  },
+  "sqs.long_poll": {
+   "status": "PASS",
+   "evidence": {
+    "empty_wait_s": 3.0,
+    "woke_after_s": 1.01,
+    "got": 1
+   },
+   "seconds": 4.02
+  },
+  "lambda.invoke_env": {
+   "status": "PASS",
+   "evidence": {
+    "status": 200,
+    "payload": {
+     "ok": true,
+     "my_var": "hello-ms",
+     "fn": "m50-inv-679c1c-69a9",
+     "python": "3.13.18",
+     "marker": "/tmp/mark50-markers/679c1c/ms/invoke/m50-inv-679c1c-69a9-1795465825818253479.json",
+     "aws_region_env": "us-east-1",
+     "endpoint_env": "http://127.0.0.1:4601"
+    },
+    "cold_s": 0.15,
+    "warm_s": 0.01,
+    "marker_on_host": true,
+    "FunctionError": null
+   },
+   "seconds": 0.68
+  },
+  "lambda.error_shape": {
+   "status": "PASS",
+   "evidence": {
+    "status": 200,
+    "FunctionError": "Unhandled",
+    "payload": {
+     "errorMessage": "boom requested by probe",
+     "errorType": "ValueError",
+     "requestId": "f88a87ad-09cc-4f4d-824f-a94519a750cf",
+     "stackTrace": [
+      "  File \"/tmp/ministack-lambda-m50-err-679c1c-983a-jhvytyuf/code/app.py\", line 24, in handler\n    raise ValueError(\"boom requested by probe\")\n"
+     ]
+    },
+    "event_invoke_status": 202,
+    "dryrun_status": 204
+   },
+   "seconds": 0.65
+  },
+  "lambda.esm_sqs": {
+   "status": "PASS",
+   "evidence": {
+    "fired": {
+     "via": "signal_queue (boto3 inside the function)",
+     "count": 1,
+     "event_sample": "{\"fn\": \"m50-esm-679c1c-9fc6\", \"event\": {\"Records\": [{\"messageId\": \"b12f4706-d4be-4b8f-973d-ac5594bc7ad7\", \"receiptHandle\": \"a24126ab-bdb8-4503-b552-780853235f1d"
+    },
+    "esm_state": "Enabled",
+    "queue_visible": "0",
+    "queue_inflight": "0"
+   },
+   "seconds": 1.74
+  },
+  "lambda.runtime_fidelity": {
+   "status": "WRONG_SEMANTICS",
+   "error": "requested python3.12, ran 3.13.18; emulator process env var M50_CANARY leaked into the function; 'requests' importable without packaging it (AWS: ImportModuleError) | {'python': '3.13.18', 'impl': 'Clang 23.1.3 ]', 'canary_env': 'host-secret-canary', 'env_count': 264, 'endpoint_env': 'http://127.0.0.1:4601', 'undeclared_import_requests': 'importable', 'host_fs_read': 'ok', 'internet': 'ok'}",
+   "seconds": 0.73
+  },
+  "lambda.logs": {
+   "status": "WRONG_SEMANTICS",
+   "error": "LogType=Tail has handler output but no START/END/REPORT lines | {'LogResult_tail_has_REPORT': False, 'tail_sample': 'MARK50_EVENT {\"x\": 1}', 'cloudwatch_log_lines': 1, 'cloudwatch_error': [], 'cloudwatch_lines_when_role_lacks_logs_perms': 1}",
+   "seconds": 5.38
+  },
+  "events.rule_to_sqs": {
+   "status": "PASS",
+   "evidence": {
+    "delivered_without_queue_policy": 1,
+    "FailedEntryCount": 0,
+    "delivered": 1,
+    "detail": [
+     {
+      "n": 10
+     }
+    ],
+    "test_event_pattern": true
+   },
+   "seconds": 6.08
+  },
+  "scheduler.one_shot_to_sqs": {
+   "status": "PASS",
+   "evidence": {
+    "expression": "at(2026-11-23T20:30:44)",
+    "state": "ENABLED",
+    "delivered": 1,
+    "body": "{\"from\": \"scheduler\"}"
+   },
+   "seconds": 8.58
+  },
+  "sfn.execution": {
+   "status": "WRONG_SEMANTICS",
+   "error": "{'status': 'SUCCEEDED', 'output': {'in': 1, 'data': {'n': 7}, 'verdict': 'big'}, 'seconds': 1.51, 'history_events': 10, 'invalid_definition': 'ACCEPTED (AWS: InvalidDefinition)'}",
+   "seconds": 1.57
+  },
+  "sfn.test_state": {
+   "status": "PASS",
+   "evidence": {
+    "status": "SUCCEEDED",
+    "output": "{\"x\": 42}"
+   },
+   "seconds": 0.0
+  },
+  "kms.roundtrip": {
+   "status": "PASS",
+   "evidence": {
+    "cipher_len": 96,
+    "decrypt_keyid_echo": "arn:aws:kms:us-east-1:000000000000:key/08fd1f02-6194-42e2-bba7-ba1d7c1bc052",
+    "decrypt_disabled_key": {
+     "http": 400,
+     "code": "DisabledException",
+     "message": "arn:aws:kms:us-east-1:000000000000:key/08fd1f02-6194-42e2-bba7-ba1d7c1bc052 is disabled."
+    }
+   },
+   "seconds": 0.05
+  },
+  "secrets.create_get_rotate": {
+   "status": "PASS",
+   "evidence": {
+    "value_ok": true,
+    "stages": [
+     "AWSCURRENT"
+    ],
+    "rotate_without_lambda_permission": "ACCEPTED",
+    "rotation_enabled": true,
+    "rotation_rules": {
+     "AutomaticallyAfterDays": 30
+    },
+    "missing_secret_error": {
+     "http": 400,
+     "code": "ResourceNotFoundException",
+     "message": "Secrets Manager can't find the specified secret."
+    }
+   },
+   "seconds": 0.55
+  },
+  "ssm.securestring": {
+   "status": "PASS",
+   "evidence": {
+    "decrypted_ok": true,
+    "undecrypted_differs": true,
+    "raw_prefix": "ENCRYPTED:czNjcjN0",
+    "by_path_count": 1
+   },
+   "seconds": 0.13
+  },
+  "ses.send_and_inspect": {
+   "status": "PASS",
+   "evidence": {
+    "message_id": "8cc5102f-3eba-44b2-a67a-05c3cfb2cf03@email.amazonses.com",
+    "seconds_until_identity_Success": 0.0,
+    "unverified_sender": {
+     "http": 400,
+     "code": "MessageRejected",
+     "message": "Email address is not verified. The following identities failed the check in region US-EAST-1: unverified@example.org"
+    },
+    "inspect_endpoint": "/_ministack/ses/messages",
+    "inspect_probe_status": {
+     "/_ministack/ses/messages": 200
+    },
+    "send_quota_sent_24h": 1.0
+   },
+   "seconds": 0.06
+  },
+  "athena.select_1": {
+   "status": "PASS",
+   "evidence": {
+    "state": "SUCCEEDED",
+    "reason": "",
+    "rows": [
+     [
+      "one",
+      "s"
+     ],
+     [
+      "1",
+      "x"
+     ]
+    ]
+   },
+   "seconds": 0.09
+  },
+  "athena.query_s3_csv": {
+   "status": "WRONG_SEMANTICS",
+   "error": "aggregate over S3 CSV wrong | {'rows': [['result'], ['mock_value']], 'implicit_default_db': 'CREATE EXTERNAL TABLE m50_679c1c_d (a string) LOCATION \\'s3:/ -> {\\'State\\': \\'FAILED\\', \\'StateChangeReason\\': \"Schema \\'default\\' does not exist\", \\'SubmissionDateTime\\''}",
+   "seconds": 0.09
+  },
+  "bedrock.converse": {
+   "status": "PASS",
+   "evidence": {
+    "text": "[ministack mock anthropic anthropic.claude-3-haiku-20240307-v1:0] reply for prompt#deb43b5b",
+    "stopReason": "end_turn",
+    "usage": {
+     "inputTokens": 1,
+     "outputTokens": 22,
+     "totalTokens": 23
+    }
+   },
+   "seconds": 0.03
+  },
+  "logs.put_get": {
+   "status": "PASS",
+   "evidence": {
+    "events": 1
+   },
+   "seconds": 0.01
+  },
+  "kinesis.put_get": {
+   "status": "PASS",
+   "evidence": {
+    "records": 1
+   },
+   "seconds": 0.04
+  },
+  "apigw.http_api_lambda_proxy": {
+   "status": "WRONG_SEMANTICS",
+   "error": "quick-create Target ignored (no route/stage created); works after explicit integration+route+stage at http://127.0.0.1:4601/_aws/execute-api/<id>/ | {'ApiEndpoint': 'http://83249cb2.execute-api.localhost:4601', 'ApiId': '83249cb2', 'before_add_permission': [None, \"URLError(gaierror(-2, 'Name or service not known'))\"], 'tries': [['Host: 83249cb2.execute-api.localhost:4601', 404, '{\"message\":\"Not Found\"}'], ['http://83249cb2.execute-api.localhost:4601/', None, \"URLError(gaierror(-2, 'Name or service not known'))\"], ['http://127.0.0.1:4601/restapis/83249cb2/$default/_user_request_/', 404, '{\"message\":\"Not Found\"}'], ['http://127.0.0.1:4601/_aws/execute-api/83249cb2/', 404, '{\"message\":\"Not Found\"}']], 'explicit_wiring_status': 200}",
+   "seconds": 0.72
+  }
+ }
+}
