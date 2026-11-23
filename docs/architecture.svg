@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="980" viewBox="0 0 1600 980" font-family="Inter, DejaVu Sans, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1f2937"/>
+    </marker>
+    <marker id="ad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#6b7280"/>
+    </marker>
+  </defs>
+  <rect width="1600" height="980" fill="#ffffff"/>
+
+  <text x="800" y="58" text-anchor="middle" font-size="34" font-weight="700" fill="#111827">One local AWS, two emulators</text>
+  <text x="800" y="96" text-anchor="middle" font-size="20" fill="#4b5563">Each service is routed to the emulator that is strongest for it, from one file</text>
+
+  <!-- routing.toml -->
+  <rect x="650" y="130" width="300" height="64" rx="10" fill="#111827"/>
+  <text x="800" y="170" text-anchor="middle" font-size="24" font-weight="700" fill="#ffffff" font-family="DejaVu Sans Mono, monospace">routing.toml</text>
+
+  <!-- rendered outputs -->
+  <g font-size="17" fill="#1f2937">
+    <rect x="250" y="250" width="330" height="70" rx="8" fill="#f3f4f6" stroke="#9ca3af"/>
+    <text x="415" y="280" text-anchor="middle" font-weight="700" font-family="DejaVu Sans Mono, monospace">.local/routes.env</text>
+    <text x="415" y="305" text-anchor="middle">AWS CLI v2 and SDK env vars</text>
+
+    <rect x="635" y="250" width="330" height="70" rx="8" fill="#f3f4f6" stroke="#9ca3af"/>
+    <text x="800" y="280" text-anchor="middle" font-weight="700" font-family="DejaVu Sans Mono, monospace">.local/aws-config</text>
+    <text x="800" y="305" text-anchor="middle">shared config services section</text>
+
+    <rect x="1020" y="250" width="330" height="70" rx="8" fill="#f3f4f6" stroke="#9ca3af"/>
+    <text x="1185" y="280" text-anchor="middle" font-weight="700" font-family="DejaVu Sans Mono, monospace">provider.gen.tf</text>
+    <text x="1185" y="305" text-anchor="middle">Terraform endpoints + Lambda env</text>
+  </g>
+  <g stroke="#6b7280" stroke-width="2" fill="none" marker-end="url(#ad)" stroke-dasharray="6 5">
+    <path d="M700 194 L470 248"/>
+    <path d="M800 194 L800 248"/>
+    <path d="M900 194 L1130 248"/>
+  </g>
+
+  <!-- MiniStack panel -->
+  <rect x="60" y="370" width="700" height="520" rx="16" fill="#ecfdf5" stroke="#059669" stroke-width="3"/>
+  <text x="90" y="412" font-size="26" font-weight="700" fill="#065f46">MiniStack</text>
+  <text x="90" y="442" font-size="18" fill="#065f46" font-family="DejaVu Sans Mono, monospace">http://127.0.0.1:4566</text>
+  <text x="730" y="412" text-anchor="end" font-size="17" fill="#065f46">real execution + test hooks</text>
+
+  <g font-size="19" fill="#111827">
+    <rect x="100" y="480" width="260" height="90" rx="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+    <text x="230" y="518" text-anchor="middle" font-weight="700">S3</text>
+    <text x="230" y="546" text-anchor="middle" font-size="16" fill="#374151">meter-uploads bucket</text>
+
+    <rect x="450" y="480" width="270" height="90" rx="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+    <text x="585" y="518" text-anchor="middle" font-weight="700">Lambda ingest</text>
+    <text x="585" y="546" text-anchor="middle" font-size="16" fill="#374151">real CPython subprocess</text>
+
+    <rect x="100" y="640" width="260" height="90" rx="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+    <text x="230" y="678" text-anchor="middle" font-weight="700">SQS</text>
+    <text x="230" y="706" text-anchor="middle" font-size="16" fill="#374151">meter-alerts, ingest-dlq</text>
+
+    <rect x="450" y="640" width="270" height="90" rx="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+    <text x="585" y="678" text-anchor="middle" font-weight="700">SES</text>
+    <text x="585" y="706" text-anchor="middle" font-size="16" fill="#374151">alert digest email</text>
+  </g>
+  <text x="90" y="790" font-size="16" fill="#065f46">IAM role, CloudWatch Logs</text>
+  <text x="90" y="820" font-size="16" fill="#065f46" font-family="DejaVu Sans Mono, monospace">/_ministack/reset   /_ministack/ses/messages</text>
+  <text x="90" y="848" font-size="16" fill="#065f46" font-family="DejaVu Sans Mono, monospace">/_ministack/sqs/messages</text>
+
+  <g stroke="#1f2937" stroke-width="2.5" fill="none" marker-end="url(#a)">
+    <path d="M360 525 L446 525"/>
+    <path d="M540 572 L330 636"/>
+    <path d="M585 572 L585 636"/>
+  </g>
+  <text x="403" y="553" text-anchor="middle" font-size="14" fill="#1f2937">event</text>
+
+  <!-- AWS Emulator panel -->
+  <rect x="840" y="370" width="700" height="520" rx="16" fill="#eff6ff" stroke="#2563eb" stroke-width="3"/>
+  <text x="870" y="412" font-size="26" font-weight="700" fill="#1e3a8a">AWS Emulator</text>
+  <text x="870" y="442" font-size="18" fill="#1e3a8a" font-family="DejaVu Sans Mono, monospace">https://127.0.0.1:9297 (own CA)</text>
+  <text x="1510" y="412" text-anchor="end" font-size="17" fill="#1e3a8a">AWS-faithful behaviour</text>
+
+  <g font-size="19" fill="#111827">
+    <rect x="900" y="480" width="290" height="90" rx="10" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+    <text x="1045" y="518" text-anchor="middle" font-weight="700">DynamoDB</text>
+    <text x="1045" y="546" text-anchor="middle" font-size="16" fill="#374151">conditional, idempotent writes</text>
+
+    <rect x="1230" y="480" width="270" height="90" rx="10" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+    <text x="1365" y="518" text-anchor="middle" font-weight="700">SSM</text>
+    <text x="1365" y="546" text-anchor="middle" font-size="16" fill="#374151">alert thresholds</text>
+
+    <rect x="900" y="640" width="600" height="90" rx="10" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+    <text x="1200" y="678" text-anchor="middle" font-weight="700">STS, KMS, Secrets Manager</text>
+    <text x="1200" y="706" text-anchor="middle" font-size="16" fill="#374151">and the default for any service not listed</text>
+  </g>
+  <text x="870" y="790" font-size="16" fill="#1e3a8a">Validates requests and resource policies like AWS</text>
+  <text x="870" y="820" font-size="16" fill="#1e3a8a">Lambdas here run on sandboxed RustPython</text>
+
+  <!-- cross-emulator call -->
+  <path d="M720 510 C 790 470, 820 470, 896 510" stroke="#b91c1c" stroke-width="3" fill="none" marker-end="url(#a)"/>
+  <text x="1110" y="618" text-anchor="middle" font-size="15" font-weight="700" fill="#b91c1c">cross-emulator calls: HTTPS + emulator CA</text>
+  <path d="M720 545 C 900 620, 1150 600, 1300 574" stroke="#b91c1c" stroke-width="3" fill="none" marker-end="url(#a)"/>
+
+  <!-- rules -->
+  <rect x="60" y="912" width="1480" height="52" rx="10" fill="#fef3c7" stroke="#d97706"/>
+  <text x="800" y="945" text-anchor="middle" font-size="18" fill="#78350f"><tspan font-weight="700">Rules:</tspan> an event source and its target share an emulator  ·  calls cross from MiniStack to AWS Emulator, never the reverse</text>
+</svg>

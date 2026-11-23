@@ -22,6 +22,8 @@ Full output of a real run: [docs/verify-output.txt](docs/verify-output.txt).
 
 ## Architecture
 
+![Architecture](docs/architecture.png)
+
 ```mermaid
 flowchart LR
   subgraph MS["MiniStack :4566 (HTTP)"]
