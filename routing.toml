@@ -1,0 +1,78 @@
+# The single source of truth for "which emulator serves which AWS service".
+#
+# `make routes` (tools/render_routes.py) renders this file into:
+#   .local/routes.env            AWS_ENDPOINT_URL_<SERVICE> exports for CLI v2 and SDKs
+#   .local/aws-config            the same routing as a shared-config `services` section
+#   terraform/routing.auto.tfvars.json
+#                                per-service endpoints for the Terraform provider and
+#                                the routing env vars injected into every Lambda
+#
+# Edit this file, never the generated ones. CLI, SDK, Terraform and the Lambda
+# runtime then cannot disagree about where a service lives.
+
+region = "us-east-1"
+
+# Services not listed below fall through to this emulator. Pointing the
+# fallback at an emulator (instead of leaving it unset) means a service you
+# forgot to route can never reach real AWS by accident.
+default = "aws-emulator"
+
+[emulators.ministack]
+endpoint = "http://127.0.0.1:4566"
+
+[emulators.aws-emulator]
+endpoint = "https://127.0.0.1:9297"
+# Written by aws-emulator on every start. HTTPS only; MiniStack is plain HTTP,
+# so this one bundle is all the TLS configuration the stack needs.
+ca_bundle = "~/.aws/emulator/9297/ca.pem"
+
+# ---------------------------------------------------------------------------
+# MiniStack: real code execution, event wiring and test hooks.
+# Rule: an event source and its target must live in the same emulator.
+# ---------------------------------------------------------------------------
+[services.lambda]
+to = "ministack"
+why = "Runs handlers in real CPython with your real dependencies, and its Lambdas can call out to AWS Emulator. AWS Emulator's sandboxed RustPython runtime cannot reach MiniStack."
+
+[services.s3]
+to = "ministack"
+why = "The upload bucket fires the ingest Lambda. Event source and target must share an emulator; AWS Emulator refuses a notification to a Lambda it does not host."
+
+[services.sqs]
+to = "ministack"
+why = "Alert queue is asserted in tests; MiniStack lets tests peek and purge via /_ministack endpoints and wipe everything with /_ministack/reset."
+
+[services.ses]
+to = "ministack"
+why = "Alert digests are emailed to site ops. Tests read the sent mail from /_ministack/ses/messages; AWS Emulator accepts SendEmail but offers no way to inspect what was sent."
+
+[services.iam]
+to = "ministack"
+why = "The Lambda execution role must exist where the function is created. Neither emulator evaluates IAM policies."
+
+[services.logs]
+to = "ministack"
+why = "Lambda log groups are written by the emulator that runs the function."
+
+# ---------------------------------------------------------------------------
+# AWS Emulator: AWS-faithful data plane and configuration services.
+# ---------------------------------------------------------------------------
+[services.dynamodb]
+to = "aws-emulator"
+why = "Idempotency depends on exact ConditionExpression and error semantics; AWS Emulator is built and scored against AWS behaviour."
+
+[services.ssm]
+to = "aws-emulator"
+why = "Runtime config (thresholds) lives in Parameter Store with AWS-faithful versioning and errors."
+
+[services.sts]
+to = "aws-emulator"
+why = "Identity calls (aws sts get-caller-identity) answer from the emulator that holds the data plane."
+
+[services.kms]
+to = "aws-emulator"
+why = "Not used by the sample app; routed explicitly so encryption work defaults to the fidelity-first emulator."
+
+[services.secretsmanager]
+to = "aws-emulator"
+why = "Not used by the sample app; secrets belong next to the data plane."
