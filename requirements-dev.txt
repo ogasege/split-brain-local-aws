@@ -1,0 +1,3 @@
+ministack==1.5.44
+boto3>=1.40
+pytest>=8
