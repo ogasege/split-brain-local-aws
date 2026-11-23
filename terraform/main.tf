@@ -66,8 +66,10 @@ resource "aws_iam_role" "ingest" {
   })
 }
 
-# Neither emulator evaluates this policy. It is here so the same module is
-# correct on a real account, which is where IAM must be tested.
+# The role lives in MiniStack, which does not evaluate it by default, so this
+# policy is not tested locally. It is here so the same module is correct on a
+# real account, which is where IAM must be tested. (AWS Emulator does enforce
+# identity policies for roles of Lambdas it runs itself.)
 resource "aws_iam_role_policy" "ingest" {
   name = "ingest"
   role = aws_iam_role.ingest.id

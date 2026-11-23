@@ -25,7 +25,7 @@ else
   # --auth off: a Lambda executed by MiniStack cannot present the emulator's
   #   rotating EMULATOR... keys (MiniStack injects its own credentials), so
   #   signature checks would break every cross-emulator call. Bound to
-  #   127.0.0.1 and IAM is not evaluated by either emulator anyway.
+  #   127.0.0.1 only. Tradeoff: signing mistakes and IAM are not tested here.
   # -t off: opt out of usage telemetry (on by default).
   log "starting AWS Emulator on $EMULATOR_URL (auth off, telemetry off)"
   EMULATOR_TELEMETRY=off nohup aws-emulator --bind 127.0.0.1 --port "$EMULATOR_PORT" \

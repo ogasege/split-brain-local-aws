@@ -48,7 +48,7 @@ why = "Alert digests are emailed to site ops. Tests read the sent mail from /_mi
 
 [services.iam]
 to = "ministack"
-why = "The Lambda execution role must exist where the function is created. Neither emulator evaluates IAM policies."
+why = "The Lambda execution role must exist where the function is created. MiniStack does not evaluate it by default, so IAM is not tested in this split (see README)."
 
 [services.logs]
 to = "ministack"
