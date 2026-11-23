@@ -28,7 +28,11 @@ else
   #   127.0.0.1 only. Tradeoff: signing mistakes and IAM are not tested here.
   # -t off: opt out of usage telemetry (on by default).
   log "starting AWS Emulator on $EMULATOR_URL (auth off, telemetry off)"
-  EMULATOR_TELEMETRY=off nohup aws-emulator --bind 127.0.0.1 --port "$EMULATOR_PORT" \
+  # env -i: like MiniStack below, don't hand the emulator your shell's real
+  # credentials, tokens or proxy settings. It only needs PATH and HOME (it
+  # writes its CA to ~/.aws/emulator/<port>/).
+  env -i PATH="$PATH" HOME="$HOME" LANG=C.UTF-8 EMULATOR_TELEMETRY=off \
+    nohup aws-emulator --bind 127.0.0.1 --port "$EMULATOR_PORT" \
       --auth off --telemetry off >"$LOG_DIR/aws-emulator.log" 2>&1 &
   echo $! >"$PID_DIR/aws-emulator.pid"
   wait_for "AWS Emulator" emulator_healthy 60 || { tail -20 "$LOG_DIR/aws-emulator.log"; die "AWS Emulator did not become healthy"; }

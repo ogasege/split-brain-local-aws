@@ -6,6 +6,16 @@
 
 _sb_root="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")/.." && pwd)"
 
+# 0. AWS CLI v1 silently ignores AWS_ENDPOINT_URL_SQS (and RDS, EMR, ...)
+#    and sends those calls to real AWS endpoints. Refuse BEFORE touching the
+#    shell, so a refused source leaves your environment unchanged.
+if command -v aws >/dev/null 2>&1; then
+  case "$(aws --version 2>&1)" in
+    aws-cli/1.*) echo "split-brain: AWS CLI v1 found on PATH. It ignores per-service endpoints for SQS; install AWS CLI v2." >&2
+                 return 1 2>/dev/null || exit 1 ;;
+  esac
+fi
+
 if [[ ! -f "$_sb_root/.local/routes.env" ]]; then
   python3 "$_sb_root/tools/render_routes.py" >/dev/null
 fi
@@ -39,12 +49,4 @@ source "$_sb_root/.local/routes.env"
 case ",${NO_PROXY:-}," in *",127.0.0.1,"*) ;; *) export NO_PROXY="localhost,127.0.0.1${NO_PROXY:+,$NO_PROXY}";; esac
 export no_proxy="$NO_PROXY"
 
-# 6. AWS CLI v1 silently ignores AWS_ENDPOINT_URL_SQS (and RDS, EMR, ...)
-#    and sends those calls to real AWS endpoints. Refuse to continue with it.
-if command -v aws >/dev/null 2>&1; then
-  case "$(aws --version 2>&1)" in
-    aws-cli/1.*) echo "split-brain: AWS CLI v1 found on PATH. It ignores per-service endpoints for SQS; install AWS CLI v2." >&2
-                 return 1 2>/dev/null || exit 1 ;;
-  esac
-fi
 unset _sb_root

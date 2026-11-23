@@ -100,9 +100,10 @@ or overlapping update paths that AWS rejects.
 
 What this placement costs: S3 on MiniStack is looser than AWS. MiniStack
 accepted a tampered presigned URL signature and a 1 KiB non-final multipart
-part, both of which AWS Emulator rejects like AWS. If this app handed
-presigned upload URLs to field devices, I would test that path against AWS
-Emulator separately.
+part, both of which AWS Emulator rejects like AWS (presigned signatures only
+with auth on: the `--auth off` instance `make up` starts accepts tampered and
+expired URLs too). If this app handed presigned upload URLs to field devices,
+I would test that path against a separate AWS Emulator started with auth on.
 
 ## Prerequisites
 
@@ -122,9 +123,21 @@ URL, so CI logs the installed version and warns when it is not 1.0.589.
 
 ## Quickstart
 
+On a stock Ubuntu 24.04 box (system Python is "externally managed", so use a venv):
+
 ```bash
+sudo apt-get install -y make jq curl git python3-venv
+# AWS Emulator (.deb shown; aws-emulator_arm64.deb and .rpm builds also exist, ~216 MB)
+curl -fsSLo /tmp/aws-emulator.deb \
+  https://downloads.aws.com/aws-emulator/packages/aws-emulator/LTS/latest/aws-emulator_amd64.deb
+sudo apt-get install -y /tmp/aws-emulator.deb
+# AWS CLI v2: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+#   (not `pip install awscli`, which gives you v1)
+# Terraform 1.17.2: https://developer.hashicorp.com/terraform/install
+
 git clone https://github.com/ogasege/split-brain-local-aws.git && cd split-brain-local-aws
-pip install -r requirements-dev.txt
+python3 -m venv .venv && . .venv/bin/activate     # keep it active for every make command
+pip install -r requirements-dev.txt               # pins ministack==1.5.44, boto3, pytest
 
 make up       # start AWS Emulator (:9297) and MiniStack (:4566), wait for health
 make deploy   # terraform apply: 13 resources across both emulators
@@ -133,14 +146,14 @@ make test     # 20 unit tests + 16 integration tests
 make down     # stop both (state is in memory and is gone)
 ```
 
-To use the split stack from your own shell:
+To use the split stack from your own shell (after `make up`):
 
 ```bash
 source scripts/env.sh
 aws s3 ls                               # MiniStack
 aws dynamodb list-tables                # AWS Emulator
 aws sqs list-queues                     # MiniStack
-python -c "import boto3; print(boto3.client('ssm').meta.endpoint_url)"   # https://127.0.0.1:9297
+python3 -c "import boto3; print(boto3.client('ssm').meta.endpoint_url)"   # https://127.0.0.1:9297
 ```
 
 Other targets: `make routes` (re-render routing), `make destroy`

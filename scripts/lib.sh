@@ -32,12 +32,12 @@ ministack_healthy() {
 
 # wait_for <description> <function> [timeout seconds]
 wait_for() {
-  local what="$1" check="$2" timeout="${3:-60}" waited=0
+  local what="$1" check="$2" timeout="${3:-60}" start=$SECONDS
   until "$check"; do
-    (( waited >= timeout )) && return 1
-    sleep 1; waited=$((waited + 1))
+    (( SECONDS - start >= timeout )) && return 1
+    sleep 0.2
   done
-  ok "$what healthy after ${waited}s"
+  ok "$what healthy after ~$((SECONDS - start))s"
 }
 
 port_in_use() {

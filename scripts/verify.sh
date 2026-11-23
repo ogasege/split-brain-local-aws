@@ -91,7 +91,7 @@ replay_logged() {
 if retry "$TIMEOUT" replay_logged; then
   ok "PASS  replay processed: Lambda log shows 13 duplicates"; PASSED=$((PASSED + 1))
 else
-  log "Lambda log line not found, falling back to a fixed wait"; sleep 8
+  fail "FAIL  replay processed: no Lambda log line with 13 duplicates"; FAILED=$((FAILED + 1))
 fi
 check "still 13 rows after replay (conditional writes rejected duplicates)" rows_are 13
 check "still 3 alerts after replay (no duplicate alerts)" alerts_are 3

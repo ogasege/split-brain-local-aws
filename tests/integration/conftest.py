@@ -28,11 +28,14 @@ def _up(url, path, ca=None):
 
 @pytest.fixture(scope="session", autouse=True)
 def stack():
+    # `make integration` sets SPLIT_BRAIN_REQUIRE_STACK=1 so a missing stack
+    # fails the run instead of silently skipping every test.
+    _missing = pytest.fail if os.environ.get("SPLIT_BRAIN_REQUIRE_STACK") == "1" else pytest.skip
     if "AWS_ENDPOINT_URL_S3" not in os.environ:
-        pytest.skip("routing env not loaded: run via `make integration` or `source scripts/env.sh`")
+        _missing("routing env not loaded: run via `make integration` or `source scripts/env.sh`")
     ca = os.environ.get("AWS_CA_BUNDLE")
     if not (_up(MINISTACK, "/_ministack/health") and _up(EMULATOR, "/__admin/health", ca)):
-        pytest.skip("emulators not running: make up")
+        _missing("emulators not running: make up")
 
 
 @pytest.fixture(scope="session")
@@ -42,7 +45,7 @@ def outputs():
     ).stdout
     out = {k: v["value"] for k, v in json.loads(raw).items()}
     if not out:
-        pytest.skip("nothing deployed: make deploy")
+        (pytest.fail if os.environ.get("SPLIT_BRAIN_REQUIRE_STACK") == "1" else pytest.skip)("nothing deployed: make deploy")
     return out
 
 

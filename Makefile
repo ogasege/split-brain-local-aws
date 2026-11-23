@@ -28,7 +28,7 @@ unit: ## unit tests for the Lambda logic (no emulators needed)
 	@python3 -m pytest -q tests/unit
 
 integration: ## pytest suite against the deployed split stack
-	@$(ENV) && python3 -m pytest -q tests/integration
+	@$(ENV) && SPLIT_BRAIN_REQUIRE_STACK=1 python3 -m pytest -q tests/integration
 
 destroy: ## terraform destroy across both emulators
 	@$(ENV) && $(TF) destroy -input=false -auto-approve -no-color

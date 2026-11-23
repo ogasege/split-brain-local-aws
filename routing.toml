@@ -3,9 +3,8 @@
 # `make routes` (tools/render_routes.py) renders this file into:
 #   .local/routes.env            AWS_ENDPOINT_URL_<SERVICE> exports for CLI v2 and SDKs
 #   .local/aws-config            the same routing as a shared-config `services` section
-#   terraform/routing.auto.tfvars.json
-#                                per-service endpoints for the Terraform provider and
-#                                the routing env vars injected into every Lambda
+#   terraform/provider.gen.tf    AWS provider with per-service endpoints, plus the
+#                                routing env vars injected into every Lambda
 #
 # Edit this file, never the generated ones. CLI, SDK, Terraform and the Lambda
 # runtime then cannot disagree about where a service lives.
